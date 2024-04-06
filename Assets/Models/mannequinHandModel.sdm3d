@@ -1,0 +1,27 @@
+!Model
+Id: 31a4f0b8-eb58-41ec-a8ca-43feebd78eb1
+SerializedVersion: {Stride: 2.0.0.0}
+Tags: []
+Source: !file ../../Resources/Models/mannequinHandModel.fbx
+Skeleton: 3dfa1530-c931-48ca-9e41-d9c55ca9371b:Models/mannequinHandModel Skeleton
+PivotPosition: {X: 0.0, Y: 0.0, Z: 0.0}
+Materials:
+    7b8394fb681bf353e28097d3e28097d3:
+        Name: glowMT
+        MaterialInstance:
+            Material: 8017a946-3735-460b-bc80-51624db1f9f3:Materials/Emissive
+    98c4d20c91aa1618068f92bf068f92bf:
+        Name: glossMT
+        MaterialInstance:
+            Material: b5c22098-116e-490b-82b4-88124e725acf:Materials/BodyWhite
+    b158ca41e15b46f8b2746c0a97fdd6ee:
+        Name: semiGlossMT
+        MaterialInstance:
+            Material: 128d64f2-ea83-4cec-a247-0d1ea13edf5e:Materials/BodyGray
+    faa4a3f8305ed27cc904838a9cc19a82:
+        Name: upperMatteMT
+        MaterialInstance:
+            Material: c3407d51-6ab5-4fc1-94c5-042c120c9544:Materials/MattBlackUpper
+Modifiers: {}
+~SourceHashes:
+    f1c7be8db99f25c5f4122fdbeae1bb85~../../Resources/Models/mannequinHandModel.fbx: db1befd09793cb26baaafc47576b4e4f

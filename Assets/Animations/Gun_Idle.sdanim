@@ -1,0 +1,20 @@
+!Animation
+Id: a3fcd478-177a-43be-8761-a6e902addfb7
+SerializedVersion: {Stride: 2.0.0.0}
+Tags: []
+Source: !file ../../Resources/Animation/Gun_Idle.fbx
+AnimationStack: 0
+ClipDuration:
+    Enabled: false
+    StartAnimationTime: 0:00:00:00.0000000
+    EndAnimationTime: 0:00:30:00.0000000
+PivotPosition: {X: 0.0, Y: 0.0, Z: 0.0}
+RepeatMode: LoopInfinite
+Type: !StandardAnimationAssetType {}
+Skeleton: 3dfa1530-c931-48ca-9e41-d9c55ca9371b:Models/mannequinHandModel Skeleton
+RootMotion: false
+PreviewModel: 31a4f0b8-eb58-41ec-a8ca-43feebd78eb1:Models/mannequinHandModel
+AnimationTimeMinimum: 0:00:00:00.0000000
+AnimationTimeMaximum: 0:00:00:01.3330000
+~SourceHashes:
+    060ab4579b3236fbcad637165cbef7fa~../../Resources/Animation/Gun_Idle.fbx: 96380ed1ae981ead11578112b7295f0b

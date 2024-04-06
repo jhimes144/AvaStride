@@ -1,0 +1,36 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="FirstPersonShooter.UI.MainWindow"
+		RenderOptions.TextRenderingMode="Antialias"
+		UseLayoutRounding="True"
+        Title="FirstPersonShooter UI">
+	<Panel>
+		<Border BoxShadow="2 2 30 2 #4C4C4C" VerticalAlignment="Top" HorizontalAlignment="Left">
+			<StackPanel>
+				<Border Padding="8" Background="#1D9DDE" MinWidth="500">
+					<TextBlock Text="Stats" FontSize="25"/>
+				</Border>
+				<Border Padding="8" Background="#4C000000">
+					<StackPanel>
+						<StackPanel Orientation="Horizontal">
+							<Image Width="60" Height="60" Source="{StaticResource TargetIcon}"/>
+							<TextBlock VerticalAlignment="Center" Margin="16,0,0,0" FontSize="25" Text="Shots Fired:"/>
+							<TextBlock VerticalAlignment="Center" Margin="8,0,0,0" x:Name="ShotsFiredTxt"
+									   FontSize="25" Text="{Binding ShotsFired}"/>
+						</StackPanel>
+						<StackPanel Margin="0,16,0,0" Orientation="Horizontal">
+							<Image Width="60" Height="60" Source="{StaticResource PersonIcon}"/>
+							<StackPanel VerticalAlignment="Center" Margin="16,0,0,0">
+								<TextBlock FontSize="25" Text="Location"/>
+								<TextBlock Margin="0,8,0,0" FontSize="25" Text="{Binding Location}"/>
+							</StackPanel>
+						</StackPanel>
+					</StackPanel>
+				</Border>
+			</StackPanel>
+		</Border>
+	</Panel>
+</Window>
