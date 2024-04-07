@@ -17,7 +17,7 @@ public class CustomGame : Game
 
 		var bounds = GraphicsDevice.Adapter.Outputs[0].DesktopBounds;
 		
-		Window.SetSize(new Int2((int)bounds.Width, (int)bounds.Height));
+		Window.SetSize(new Int2(bounds.Width, bounds.Height));
 		Window.Position = new Int2(0, 0);
 		Window.IsBorderLess = true;
 
