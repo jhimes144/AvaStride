@@ -1,11 +1,8 @@
-﻿using Avalonia;
-using AvaStride;
+﻿using AvaStride;
 using FirstPersonShooter.UI;
-using Stride.Core;
-using Stride.Core.Presentation.Interop;
 using Stride.Engine;
-using Stride.Games;
 using Stride.Graphics;
+using Stride.Core.Mathematics;
 using System;
 
 namespace FirstPersonShooter;
@@ -17,8 +14,12 @@ public class CustomGame : Game
 
 		WindowMinimumUpdateRate.MinimumElapsedTime = TimeSpan.Zero;
 		MinimizedMinimumUpdateRate.MinimumElapsedTime = TimeSpan.Zero;
+
+		var bounds = GraphicsDevice.Adapter.Outputs[0].DesktopBounds;
+		
+		Window.SetSize(new Int2(bounds.Width, bounds.Height));
+		Window.Position = new Int2(0, 0);
 		Window.IsBorderLess = true;
-        Window.Position = new Stride.Core.Mathematics.Int2(0, 0);
 
 		var appBuilder = Program.BuildAvaloniaApp();
         AvaloniaInStride.StartAndAttachAvalonia(this, appBuilder);

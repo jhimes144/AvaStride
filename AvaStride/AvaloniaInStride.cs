@@ -22,7 +22,6 @@ namespace AvaStride
     {
         readonly static HashSet<Action<Window, TimeSpan>> _renderCallbacks = [];
         readonly static object _uiRenderCallbacksLock = new();
-        readonly static GameCallbackSystem _gameCallbacks = new();
 
         static bool _uiRenderCallbacksOn;
         static Game? _game;
@@ -30,8 +29,9 @@ namespace AvaStride
         static nint _avaHandle;
         static Window? _uiWindow;
         static AutoResetEvent? _windowAvailEvent;
+		static GameCallbackSystem? _gameCallbacks;
 
-        public static bool GameAttached => _game != null;
+		public static bool GameAttached => _game != null;
 
         public static bool UIAttached => _uiWindow != null;
 
@@ -65,6 +65,9 @@ namespace AvaStride
                 _windowAvailEvent.WaitOne();
                 _windowAvailEvent.Dispose();
             }
+
+            // Add the game callback system to the game.
+            _game.GameSystems.Add(_gameCallbacks = new GameCallbackSystem(game.Services, true));
         }
 
         public static void InitializeWithWindow(Window window, bool enableCaptureAtStart, bool applyTransparency = true)
@@ -147,7 +150,7 @@ namespace AvaStride
         /// <param name="priority"></param>
         public static void SetGameCallbacksPriority(int priority)
         {
-            DispatchGameThread(_ => _gameCallbacks.Priority = priority);
+            DispatchGameThread(_ => _gameCallbacks.UpdateOrder = priority);
         }
 
         /// <summary>

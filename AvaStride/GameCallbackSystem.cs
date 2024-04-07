@@ -1,4 +1,6 @@
-﻿using Stride.Engine;
+﻿using Stride.Core;
+using Stride.Engine;
+using Stride.Games;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,12 +9,20 @@ using System.Threading.Tasks;
 
 namespace AvaStride
 {
-    internal class GameCallbackSystem : SyncScript
+    /// <summary>
+    /// Gets added by <see cref="AvaloniaInStride"/> to allow for callbacks to be dispatched on the main game thread.
+    /// </summary>
+    internal class GameCallbackSystem : GameSystem
     {
         readonly object _lock = new();
         readonly HashSet<Action> _actions = [];
 
-        public override void Update()
+		public GameCallbackSystem(IServiceRegistry registry, bool isEnabled) : base(registry)
+		{
+            Enabled = isEnabled;
+		}
+
+		public override void Update(GameTime time)
         {
             lock (_lock)
             {
