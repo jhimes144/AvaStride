@@ -1,6 +1,6 @@
 # AvaStride
 
-### [NuGet](https://www.nuget.org/packages/ThothRpc/) [![NuGet](https://img.shields.io/nuget/v/ThothRpc?color=blue)](https://www.nuget.org/packages/ThothRpc/)
+### [NuGet](https://www.nuget.org/packages/AvaStride/1.0.0/) [![NuGet](https://img.shields.io/nuget/v/ThothRpc?color=blue)](https://www.nuget.org/packages/AvaStride/1.0.0/)
 
 ## What does this library do?
 

@@ -6,6 +6,7 @@
 		<RepositoryUrl>https://github.com/jhimes144/AvaStride</RepositoryUrl>
 		<PackageProjectUrl>https://github.com/jhimes144/AvaStride</PackageProjectUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Version>1.0.0</Version>
 		<Authors>Jacob Himes</Authors>
@@ -17,6 +18,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+      <ItemGroup>
+        <None Include="..\README.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Avalonia" Version="11.*" />
