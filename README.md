@@ -27,6 +27,7 @@ To keep things simple, AvaStride allows you to enable either the game or the ui 
 ## Getting Started
 
 ### Working Sample
+![alt text](https://github.com/jhimes144/AvaStride/blob/main/FirstPersonShooter.Windows/sampleShot.png?raw=true)
 Inside this repo is a sample based on an [improved FPS template](https://github.com/Doprez/smooth-fps-template/tree/main).
 
 ### Existing/New Project
