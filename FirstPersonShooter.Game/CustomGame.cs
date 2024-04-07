@@ -4,6 +4,7 @@ using Stride.Engine;
 using Stride.Graphics;
 using Stride.Core.Mathematics;
 using System;
+using Stride.Games;
 
 namespace FirstPersonShooter;
 public class CustomGame : Game
@@ -18,10 +19,14 @@ public class CustomGame : Game
 		var bounds = GraphicsDevice.Adapter.Outputs[0].DesktopBounds;
 		
 		Window.SetSize(new Int2(bounds.Width, bounds.Height));
-		Window.Position = new Int2(0, 0);
-		Window.IsBorderLess = true;
+        Window.IsBorderLess = true;
+        Window.Position = new Int2(0, 0);
+
 
 		var appBuilder = Program.BuildAvaloniaApp();
         AvaloniaInStride.StartAndAttachAvalonia(this, appBuilder);
+
+		// this must be added after avalonia is attached.
+        Services.AddService(new MainMenuService(this));
     }
 }

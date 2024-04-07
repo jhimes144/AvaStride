@@ -1,5 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
+	<PropertyGroup>
+		<PackageTags>stride avalonia ui</PackageTags>
+		<PackageReleaseNotes>https://github.com/jhimes144/AvaStride/releases</PackageReleaseNotes>
+		<RepositoryType>git</RepositoryType>
+		<RepositoryUrl>https://github.com/jhimes144/AvaStride</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/jhimes144/AvaStride</PackageProjectUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Version>1.0.0</Version>
+		<Authors>Jacob Himes</Authors>
+		<Copyright>Copyright 2022 Jacob Himes</Copyright>
+		<Description>Renders Avalonia inside the Stride game engine.</Description>
+	</PropertyGroup>
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -7,11 +19,11 @@
   </PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Avalonia" Version="11.0.10" />
-		<PackageReference Include="Stride.Core" Version="4.2.0.2122" PrivateAssets="contentfiles;analyzers" />
-		<PackageReference Include="Stride.Engine" Version="4.2.0.2122" PrivateAssets="contentfiles;analyzers" />
-		<PackageReference Include="Stride.Particles" Version="4.2.0.2122" PrivateAssets="contentfiles;analyzers" />
-		<PackageReference Include="Stride.Physics" Version="4.2.0.2122" PrivateAssets="contentfiles;analyzers" />
-		<PackageReference Include="Stride.UI" Version="4.2.0.2122" PrivateAssets="contentfiles;analyzers" />
+		<PackageReference Include="Avalonia" Version="11.*" />
+		<PackageReference Include="Stride.Core" Version="4.2.*" PrivateAssets="contentfiles;analyzers" />
+		<PackageReference Include="Stride.Engine" Version="4.2.*" PrivateAssets="contentfiles;analyzers" />
+		<PackageReference Include="Stride.Particles" Version="4.2.*" PrivateAssets="contentfiles;analyzers" />
+		<PackageReference Include="Stride.Physics" Version="4.2.*" PrivateAssets="contentfiles;analyzers" />
+		<PackageReference Include="Stride.UI" Version="4.2.*" PrivateAssets="contentfiles;analyzers" />
 	</ItemGroup>
 </Project>

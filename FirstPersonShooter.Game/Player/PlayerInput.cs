@@ -46,8 +46,6 @@ namespace FirstPersonShooter.Player
 
         public List<Keys> KeysReload { get; } = new List<Keys>();
 
-        private Vector3 _currentSpeed;
-
         public PlayerInput()
         {
             // Fix single frame input lag
@@ -94,7 +92,6 @@ namespace FirstPersonShooter.Player
                     : new Vector3(moveDirection.X, 0, moveDirection.Y); // If we don't have the correct camera attached we can send the directions anyway, but they probably won't match
 
                 MoveDirectionEventKey.Broadcast(worldSpeed);
-                _currentSpeed = worldSpeed;
             }
 
             // Camera rotation
@@ -122,8 +119,7 @@ namespace FirstPersonShooter.Player
                 }
                 if (Input.IsKeyPressed(Keys.Escape))
                 {
-                    Input.UnlockMousePosition();
-                    Game.IsMouseVisible = true;
+                    Game.Services.GetService<MainMenuService>().ShowMainMenu();
                 }
                 if (Input.IsMousePositionLocked)
                 {

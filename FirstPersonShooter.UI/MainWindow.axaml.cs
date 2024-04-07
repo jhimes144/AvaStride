@@ -8,6 +8,8 @@ using Avalonia.Styling;
 using ReactiveUI;
 using System;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
+using System.Threading.Tasks;
 
 namespace FirstPersonShooter.UI
 {
@@ -66,6 +68,11 @@ namespace FirstPersonShooter.UI
                     {
                         growAni.RunAsync(ShotsFiredTxt);
                     })
+                    .DisposeWith(d);
+
+
+                this.WhenAnyValue(v => v.ViewModel!.MainMenuVisible)
+                    .Subscribe(visible => MenuPanel.Opacity = visible ? 1d : 0d)
                     .DisposeWith(d);
             });
         }

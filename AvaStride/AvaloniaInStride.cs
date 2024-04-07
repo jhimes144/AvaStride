@@ -1,6 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Styling;
 using Avalonia.Threading;
@@ -121,7 +122,11 @@ namespace AvaStride
         public static void EnableUICapture(bool enable)
         {
             checkThrowWindowInit();
+
             NativeHelper.EnableWindow(_avaHandle, enable);
+            NativeHelper.SetForegroundWindow(enable ? _avaHandle : _gameHandle);
+            NativeHelper.SetActiveWindow(enable ? _avaHandle : _gameHandle);
+            NativeHelper.SetFocus(enable ? _avaHandle : _gameHandle);
         }
 
         /// <summary>
@@ -150,7 +155,7 @@ namespace AvaStride
         /// <param name="priority"></param>
         public static void SetGameCallbacksPriority(int priority)
         {
-            DispatchGameThread(_ => _gameCallbacks.UpdateOrder = priority);
+            DispatchGameThread(_ => _gameCallbacks!.UpdateOrder = priority);
         }
 
         /// <summary>
@@ -160,7 +165,7 @@ namespace AvaStride
         public static void DispatchGameThread(Action<Game> action)
         {
             checkThrowGameInit();
-            _gameCallbacks.Dispatch(() => action(_game!));
+            _gameCallbacks!.Dispatch(() => action(_game!));
         }
 
         /// <summary>
