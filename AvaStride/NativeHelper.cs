@@ -38,6 +38,9 @@ namespace AvaStride
         [DllImport(ExternDll.User32)]
         public static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
 
+        [DllImport(ExternDll.User32)]
+        public static extern IntPtr SetFocus(IntPtr hWnd);
+
         [DllImport("kernel32.dll")]
         public static extern uint GetLastError();
 
