@@ -67,7 +67,7 @@ namespace AvaStride
             }
 
             // Add the game callback system to the game.
-            _game.GameSystems.Add(_gameCallbacks = new GameCallbackSystem(game.Services));
+            _game.GameSystems.Add(_gameCallbacks = new GameCallbackSystem(game.Services, true));
         }
 
         public static void InitializeWithWindow(Window window, bool enableCaptureAtStart, bool applyTransparency = true)

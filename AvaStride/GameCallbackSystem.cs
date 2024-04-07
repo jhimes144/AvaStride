@@ -17,9 +17,9 @@ namespace AvaStride
         readonly object _lock = new();
         readonly HashSet<Action> _actions = [];
 
-		public GameCallbackSystem(IServiceRegistry registry) : base(registry)
+		public GameCallbackSystem(IServiceRegistry registry, bool isEnabled) : base(registry)
 		{
-
+            Enabled = isEnabled;
 		}
 
 		public override void Update(GameTime time)
