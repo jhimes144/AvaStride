@@ -4,7 +4,7 @@
 
 ## What does this library do?
 
-AvaStride allows you to run an [Avalonia](https://avaloniaui.net/) app inside [Stride](https://www.stride3d.net/), to be used as your game/project's UI. Technically speaking, it layers Avalonia on top of Stride via low-level win32 apis. Avalonia is ran on a seperate thread from Stride's main thread, and so this library also provides mechanisms for communicating to and from Stride and Avalonia. This library, at time of writing works with the latest Stride and Avalonia (v11x) versions.
+AvaStride allows you to run an [Avalonia](https://avaloniaui.net/)11x app inside [Stride](https://www.stride3d.net/), to be used as your game/project's UI. Technically speaking, it layers Avalonia on top of Stride via low-level win32 apis. Avalonia is ran on a seperate thread from Stride's main thread, and so this library also provides mechanisms for communicating to and from Stride and Avalonia. This library, at time of writing works with the latest Stride and Avalonia (v11x) versions.
 
 ## Why use this library?
 
