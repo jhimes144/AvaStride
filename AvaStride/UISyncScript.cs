@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace AvaStride
 {
+    [ComponentCategory("UI")]
     public abstract class UISyncScript : SyncScript
     {
         public abstract void UIUpdate(Window window, TimeSpan t);
