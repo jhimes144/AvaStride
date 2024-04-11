@@ -25,7 +25,13 @@ namespace AvaStride
 		static GameCallbackSystem? _gameCallbacks;
         static Action? _windowInitCallback;
         static bool _uiEnabled;
-        static bool _uiVisible;
+        static bool _uiVisible = true;
+
+        [ThreadStatic] 
+        static AutoResetEvent? _uiBlockEvent;
+        
+        [ThreadStatic] 
+        static AutoResetEvent? _gameBlockEvent;
 
 		public static bool GameAttached => _game != null;
 
@@ -221,7 +227,7 @@ namespace AvaStride
         }
 
         /// <summary>
-        /// Dispatches a function on the game thread, to be called at next frame update.
+        /// Dispatches a function on the game thread, to be called at next frame update. Blocks until the function completes
         /// If the executing code is already on the game thread, than the action is ran immediately.
         /// </summary>
         /// <remarks>
@@ -231,14 +237,83 @@ namespace AvaStride
         /// </remarks>
         public static T? DispatchGameThread<T>(Func<Game, T> func)
         {
+            if (_gameCallbacks!.CheckAccess())
+            {
+                return func(_game!);
+            }
+            
             T? value = default;
+            _gameBlockEvent ??= new AutoResetEvent(false);
+            
+            // _gameBlockEvent is thread static, so we cannot access it directly in dispatch,
+            // because it will point to a different instance at that point
+            var ev = _gameBlockEvent;
+            Exception? ex = null;
             
             DispatchGameThread(g =>
             {
-                value = func(g);
+                try
+                {
+                    value = func(g);
+                }
+                catch (Exception e)
+                {
+                    ex = e;
+                }
+                
+                ev.Set();
             });
+
+            _gameBlockEvent.WaitOne();
+            
+            if (ex != null)
+            {
+                throw ex;
+            }
             
             return value;
+        }
+        
+        /// <summary>
+        /// Asynchronously dispatches a function to be executed on the game thread and returns a task representing the operation. This method is useful for executing code on the game thread and retrieving the result asynchronously.
+        /// </summary>
+        /// <typeparam name="T">The return type of the function to be executed on the game thread.</typeparam>
+        /// <param name="func">The function to be executed on the game thread. This function should take a Game instance as input and return a value of type T.</param>
+        /// <returns>A task representing the asynchronous operation. The task result is of type T.</returns>
+        /// <remarks>
+        /// The method schedules the function to be executed on the game thread. If an exception occurs within the function, the returned task will be faulted with that exception. Otherwise, the task will complete with the result of the function.
+        /// This method is particularly useful for interacting with the game engine's state or performing operations that need to be synchronized with the game's update loop.
+        /// </remarks>
+        /// <example>
+        /// Example usage:
+        /// <code>
+        /// var result = await AvaloniaInStride.DispatchGameThreadAsync(game => game.SomeGameMethod());
+        /// // Use result here
+        /// </code>
+        /// </example>
+        /// <exception cref="Exception">Thrown if the function execution throws an exception.</exception>
+        public static Task<T?> DispatchGameThreadAsync<T>(Func<Game, T> func)
+        {
+            if (_gameCallbacks!.CheckAccess())
+            {
+                return Task.FromResult(func(_game!));
+            }
+            
+            var taskC = new TaskCompletionSource<T?>();
+            
+            DispatchGameThread(g =>
+            {
+                try
+                {
+                    taskC.SetResult(func(g));
+                }
+                catch (Exception e)
+                {
+                    taskC.SetException(e);
+                }
+            });
+
+            return taskC.Task;
         }
 
         /// <summary>
@@ -267,7 +342,7 @@ namespace AvaStride
         }
         
         /// <summary>
-        /// Dispatches a function on the UI thread.
+        /// Dispatches a function on the UI thread. Blocks until the function completes
         /// If the executing code is already on the UI thread, than the action is ran immediately.
         /// </summary>
         /// <remarks>
@@ -277,14 +352,84 @@ namespace AvaStride
         /// </remarks>
         public static T? DispatchUIThread<T>(Func<Window, T> func, DispatcherPriority priority = default)
         {
+            if (Dispatcher.UIThread.CheckAccess())
+            {
+                return func(_uiWindow!);
+            }
+            
             T? value = default;
+            _uiBlockEvent ??= new AutoResetEvent(false);
+            
+            // _uiBlockEvent is thread static, so we cannot access it directly in dispatch,
+            // because it will point to a different instance at that point
+            var ev = _uiBlockEvent;
+            Exception? ex = null;
             
             DispatchUIThread(g =>
             {
-                value = func(g);
+                try
+                {
+                    value = func(g);
+                }
+                catch (Exception e)
+                {
+                    ex = e;
+                }
+                
+                ev.Set();
             }, priority);
+
+            _uiBlockEvent.WaitOne();
+
+            if (ex != null)
+            {
+                throw ex;
+            }
             
             return value;
+        }
+
+        /// <summary>
+        /// Asynchronously dispatches a function to be executed on the UI thread and returns a task representing the operation. This method is suitable for performing UI-related operations and obtaining the result asynchronously.
+        /// </summary>
+        /// <typeparam name="T">The return type of the function to be executed on the UI thread.</typeparam>
+        /// <param name="func">The function to be executed on the UI thread. This function should take a Window instance as input and return a value of type T.</param>
+        /// <param name="priority">The priority at which the function should be executed on the UI thread.</param>
+        /// <returns>A task representing the asynchronous operation. The task result is of type T.</returns>
+        /// <remarks>
+        /// This method schedules the provided function for execution on the UI thread based on the specified DispatcherPriority. If an exception occurs within the function, the returned task will be faulted with that exception. Otherwise, the task will complete with the result of the function. This is useful for updates or calculations that need to be done on the UI thread.
+        /// </remarks>
+        /// <example>
+        /// Example usage:
+        /// <code>
+        /// var result = await AvaloniaInStride.DispatchUIThreadAsync(window => window.SomeUIThreadMethod());
+        /// // Use result here
+        /// </code>
+        /// </example>
+        /// <exception cref="Exception">Thrown if the function execution throws an exception.</exception>
+        public static Task<T?> DispatchUIThreadAsync<T>(Func<Window, T> func,
+            DispatcherPriority priority = default)
+        {
+            if (Dispatcher.UIThread.CheckAccess())
+            {
+                return Task.FromResult(func(_uiWindow!));
+            }
+            
+            var taskC = new TaskCompletionSource<T?>();
+            
+            DispatchUIThread(w =>
+            {
+                try
+                {
+                    taskC.SetResult(func(w));
+                }
+                catch (Exception e)
+                {
+                    taskC.SetException(e);
+                }
+            }, priority);
+
+            return taskC.Task;
         }
 
         /// <summary>

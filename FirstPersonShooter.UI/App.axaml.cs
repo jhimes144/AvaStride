@@ -23,7 +23,7 @@ namespace FirstPersonShooter.UI
 
                 if (AvaloniaInStride.GameAttached)
                 {
-                    AvaloniaInStride.InitializeWithWindow(new MainWindow(), false, true);
+                    AvaloniaInStride.InitializeWithWindow(new MainWindow(), false);
                 }
                 else
                 {

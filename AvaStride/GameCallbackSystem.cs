@@ -36,6 +36,12 @@ namespace AvaStride
 
         public bool CheckAccess()
         {
+            if (_gameThread == null)
+            {
+                throw new InvalidOperationException(
+                    "Cannot check access to game thread yet since the game callback system has not yet been started.");
+            }
+            
             return _gameThread == Thread.CurrentThread;
         }
 

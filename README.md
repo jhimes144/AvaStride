@@ -1,6 +1,6 @@
 # AvaStride
 
-### [NuGet](https://www.nuget.org/packages/AvaStride/1.0.4/) [![NuGet](https://img.shields.io/nuget/v/AvaStride?color=blue)](https://www.nuget.org/packages/AvaStride/1.0.4/)
+### [NuGet](https://www.nuget.org/packages/AvaStride/1.0.5/) [![NuGet](https://img.shields.io/nuget/v/AvaStride?color=blue)](https://www.nuget.org/packages/AvaStride/1.0.5/)
 
 ## What does this library do?
 
@@ -28,7 +28,7 @@ To keep things simple, AvaStride allows you to enable either the game or the ui 
 
 ### Working Sample
 ![alt text](https://github.com/jhimes144/AvaStride/blob/main/FirstPersonShooter.Windows/sampleShot.png?raw=true)
-Inside this repo is a sample based on an [improved FPS template](https://github.com/Doprez/smooth-fps-template/tree/main).
+Inside this repo is a sample based on an [improved FPS template](https://github.com/Doprez/smooth-fps-template/tree/main). Please note that this sample is barebones and doesn't necessarily follow a good code scalable pattern for communication from and to the UI. AvaStride provides methods for communication between threads, but it would up to you to make a pattern that scales and works for you.
 
 ### Existing/New Project
 1. Install the AvaStride nuget package to your Stride solution.

@@ -12,9 +12,6 @@ namespace FirstPersonShooter.UI
 {
     public class MainViewModel : ReactiveObject
     {
-        public event EventHandler? ContinueGameClick;
-        public event EventHandler? ExitGameClick;
-
         [Reactive]
         public string? ShotsFired { get; set; } = "0";
 
@@ -30,8 +27,21 @@ namespace FirstPersonShooter.UI
 
         public MainViewModel()
         {
-            ContinueGameCommand = ReactiveCommand.Create(() => ContinueGameClick?.Invoke(this, EventArgs.Empty));
-            ExitGameCommand = ReactiveCommand.Create(() => ExitGameClick?.Invoke(this, EventArgs.Empty));
+            ContinueGameCommand = ReactiveCommand.Create(continueGame);
+            ExitGameCommand = ReactiveCommand.Create(exitGame);
+        }
+
+        void continueGame()
+        {
+            AvaloniaInStride.EnableUICapture(false);
+            MainMenuVisible = false;
+
+            AvaloniaInStride.DispatchGameThread(game => game.Input.LockMousePosition());
+        }
+
+        void exitGame()
+        {
+            AvaloniaInStride.DispatchGameThread(game => game.Exit());
         }
     }
 }

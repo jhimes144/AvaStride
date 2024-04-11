@@ -20,31 +20,6 @@ namespace FirstPersonShooter
         public MainMenuService(Game game)
         {
             _game = game;
-
-            AvaloniaInStride.DispatchUIThread(window =>
-            {
-                if (window is MainWindow mainWindow)
-                {
-                    mainWindow.ViewModel.ContinueGameClick += (_, __) =>
-                    {
-                        AvaloniaInStride.EnableUICapture(false);
-                        mainWindow.ViewModel.MainMenuVisible = false;
-
-                        AvaloniaInStride.DispatchGameThread(game =>
-                        {
-                            game.Input.LockMousePosition();
-                        });
-                    };
-
-                    mainWindow.ViewModel.ExitGameClick += (_, __) =>
-                    {
-                        AvaloniaInStride.DispatchGameThread(game =>
-                        {
-                            game.Exit();
-                        });
-                    };
-                }
-            });
         }
 
         public void ShowMainMenu()

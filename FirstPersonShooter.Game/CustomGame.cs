@@ -28,5 +28,5 @@ public class CustomGame : Game
 
 		// this must be added after avalonia is attached.
         Services.AddService(new MainMenuService(this));
-    }
+	}
 }
