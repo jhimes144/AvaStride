@@ -7,10 +7,14 @@ using Stride.Engine;
 
 namespace AvaStride
 {
+    /// <summary>
+    /// Contains functionality to run Avalonia in Stride. All members are thread safe.
+    /// </summary>
     public static class AvaloniaInStride
     {
         readonly static HashSet<Action<Window, TimeSpan>> _renderCallbacks = [];
         readonly static object _uiRenderCallbacksLock = new();
+        readonly static object _uiEnableLock = new();
 
         static bool _uiRenderCallbacksOn;
         static Game? _game;
@@ -19,6 +23,9 @@ namespace AvaStride
         static Window? _uiWindow;
         static AutoResetEvent? _windowAvailEvent;
 		static GameCallbackSystem? _gameCallbacks;
+        static Action? _windowInitCallback;
+        static bool _uiEnabled;
+        static bool _uiVisible;
 
 		public static bool GameAttached => _game != null;
 
@@ -29,10 +36,12 @@ namespace AvaStride
         /// </summary>
         /// <param name="game">The game instance to which Avalonia UI will be attached.</param>
         /// <param name="appBuilder">The Avalonia application builder to configure and start the Avalonia application.</param>
-        /// <param name="waitForWindowInit">Indicates whether to wait for the Avalonia window to be initialized before continuing execution.</param>
+        /// <param name="waitForWindowInit">Indicates whether to block for the Avalonia window to be initialized before continuing execution.</param>
+        /// <param name="windowInitCallback">Optional callback to be invoked on UI thread when InitializeWithWindow is called. Useful for setting up third party apis/dependency injection as part of Avalonia initialization.</param>
         /// <exception cref="InvalidOperationException">Thrown if Avalonia has already been initialized with a game.</exception>
         /// <exception cref="PlatformNotSupportedException">Thrown if the current operating system is not supported.</exception>
-        public static void StartAndAttachAvalonia(Game game, AppBuilder appBuilder, bool waitForWindowInit = true)
+        public static void StartAndAttachAvalonia(Game game, AppBuilder appBuilder, bool waitForWindowInit = true,
+            Action? windowInitCallback = null)
         {
             if (_gameHandle != IntPtr.Zero)
             {
@@ -49,6 +58,8 @@ namespace AvaStride
                 IsBackground = true,
                 Name = "Avalonia UI"
             };
+
+            _windowInitCallback = windowInitCallback;
 
             avaloniaThread.SetApartmentState(ApartmentState.STA);
             avaloniaThread.Start(appBuilder);
@@ -93,7 +104,8 @@ namespace AvaStride
             {
                 throw new Exception("Failed to get window handle for Avalonia app.");
             }
-
+            
+            _windowInitCallback?.Invoke();
             _avaHandle = pHandle.Handle;
 
             if (applyTransparency)
@@ -112,6 +124,7 @@ namespace AvaStride
             _uiWindow = window;
             _windowAvailEvent?.Set();
 
+            _uiEnabled = enableCaptureAtStart;
             if (!enableCaptureAtStart)
             {
                 NativeHelper.EnableWindow(_avaHandle, false);
@@ -128,10 +141,18 @@ namespace AvaStride
         {
             checkThrowWindowInit();
 
-            NativeHelper.EnableWindow(_avaHandle, enable);
-            NativeHelper.SetForegroundWindow(enable ? _avaHandle : _gameHandle);
-            NativeHelper.SetActiveWindow(enable ? _avaHandle : _gameHandle);
-            NativeHelper.SetFocus(enable ? _avaHandle : _gameHandle);
+            lock (_uiEnableLock)
+            {
+                if (enable != _uiEnabled)
+                {
+                    if (_uiVisible)
+                    {
+                        setUIEnable(enable);
+                    }
+                    
+                    _uiEnabled = enable;
+                }
+            }
         }
 
         /// <summary>
@@ -140,18 +161,32 @@ namespace AvaStride
         /// <param name="visible"></param>
         public static void SetUIIsVisible(bool visible)
         {
-            var style = NativeHelper.GetWindowLong(_avaHandle, NativeHelper.GWL_STYLE);
-
-            if (visible)
+            lock (_uiEnableLock)
             {
-                style |= NativeHelper.WS_VISIBLE;
-            }
-            else
-            {
-                style &= ~NativeHelper.WS_VISIBLE;
-            }
+                var style = NativeHelper.GetWindowLong(_avaHandle, NativeHelper.GWL_STYLE);
 
-            NativeHelper.SetWindowLong(_avaHandle, NativeHelper.GWL_STYLE, style);
+                if (visible)
+                {
+                    style |= NativeHelper.WS_VISIBLE;
+                }
+                else
+                {
+                    style &= ~NativeHelper.WS_VISIBLE;
+                }
+
+                NativeHelper.SetWindowLong(_avaHandle, NativeHelper.GWL_STYLE, style);
+
+                if (!visible)
+                {
+                    setUIEnable(false);
+                }
+                else if (_uiEnabled)
+                {
+                    setUIEnable(true);
+                }
+
+                _uiVisible = visible;
+            }
         }
 
         /// <summary>
@@ -167,7 +202,11 @@ namespace AvaStride
         /// Dispatches an action on the game thread, to be called at next frame update.
         /// If the executing code is already on the game thread, than the action is ran immediately.
         /// </summary>
-        /// <param name="action"></param>
+        /// <remarks>
+        /// Dispatching of code is great for one-off and less frequent updates, but its subjected to object allocation
+        /// for the callback and slight variations in throughput. For real-time updates, use
+        /// the UISyncScript or RegisterUIThreadUpdateCallback.
+        /// </remarks>
         public static void DispatchGameThread(Action<Game> action)
         {
             checkThrowGameInit();
@@ -182,9 +221,35 @@ namespace AvaStride
         }
 
         /// <summary>
+        /// Dispatches a function on the game thread, to be called at next frame update.
+        /// If the executing code is already on the game thread, than the action is ran immediately.
+        /// </summary>
+        /// <remarks>
+        /// Dispatching of code is great for one-off and less frequent updates, but its subjected to object allocation
+        /// for the callback and slight variations in throughput. For real-time updates, use
+        /// the UISyncScript or RegisterUIThreadUpdateCallback.
+        /// </remarks>
+        public static T? DispatchGameThread<T>(Func<Game, T> func)
+        {
+            T? value = default;
+            
+            DispatchGameThread(g =>
+            {
+                value = func(g);
+            });
+            
+            return value;
+        }
+
+        /// <summary>
         /// Dispatches an action on the UI thread.
         /// If the executing code is already on the UI thread, than the action is ran immediately.
         /// </summary>
+        /// <remarks>
+        /// Dispatching of code is great for one-off and less frequent updates, but its subjected to object allocation
+        /// for the callback and slight variations in throughput. For real-time updates, use
+        /// the UISyncScript or RegisterUIThreadUpdateCallback.
+        /// </remarks>
         /// <param name="action"></param>
         /// <param name="priority"></param>
         public static void DispatchUIThread(Action<Window> action, DispatcherPriority priority = default)
@@ -200,11 +265,31 @@ namespace AvaStride
 
             Dispatcher.UIThread.Post(() => action(_uiWindow!), priority);
         }
+        
+        /// <summary>
+        /// Dispatches a function on the UI thread.
+        /// If the executing code is already on the UI thread, than the action is ran immediately.
+        /// </summary>
+        /// <remarks>
+        /// Dispatching of code is great for one-off and less frequent updates, but its subjected to object allocation
+        /// for the callback and slight variations in throughput. For real-time updates, use
+        /// the UISyncScript or RegisterUIThreadUpdateCallback.
+        /// </remarks>
+        public static T? DispatchUIThread<T>(Func<Window, T> func, DispatcherPriority priority = default)
+        {
+            T? value = default;
+            
+            DispatchUIThread(g =>
+            {
+                value = func(g);
+            }, priority);
+            
+            return value;
+        }
 
         /// <summary>
         /// Registers a UISyncScript. This is called automatically when a UISyncScript is started.
         /// </summary>
-        /// <param name="script"></param>
         public static void RegisterUIThreadScript(UISyncScript script)
         {
             var trash = RegisterUIThreadUpdateCallback(script.UIUpdate);
@@ -219,8 +304,6 @@ namespace AvaStride
         /// to update until the user interacts with the UI or an animation is ran. When using this method to register a callback, it places to UI thread in a constant 60fps update
         /// until the callback is disposed. This has a small cpu penalty. This method is much more performant vs dispatches when you are rapidly updating the UI.
         /// </remarks>
-        /// <param name="action"></param>
-        /// <returns></returns>
         public static IDisposable RegisterUIThreadUpdateCallback(Action<Window, TimeSpan> action)
         {
             checkThrowWindowInit();
@@ -272,6 +355,14 @@ namespace AvaStride
                     }
                 }
             });
+        }
+        
+        static void setUIEnable(bool enable)
+        {
+            NativeHelper.EnableWindow(_avaHandle, enable);
+            NativeHelper.SetForegroundWindow(enable ? _avaHandle : _gameHandle);
+            NativeHelper.SetActiveWindow(enable ? _avaHandle : _gameHandle);
+            NativeHelper.SetFocus(enable ? _avaHandle : _gameHandle);
         }
 
         static void checkThrowWindowInit()
