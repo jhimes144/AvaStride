@@ -1,6 +1,6 @@
 # AvaStride
 
-### [NuGet](https://www.nuget.org/packages/AvaStride/1.0.3/) [![NuGet](https://img.shields.io/nuget/v/AvaStride?color=blue)](https://www.nuget.org/packages/AvaStride/1.0.3/)
+### [NuGet](https://www.nuget.org/packages/AvaStride/1.0.4/) [![NuGet](https://img.shields.io/nuget/v/AvaStride?color=blue)](https://www.nuget.org/packages/AvaStride/1.0.4/)
 
 ## What does this library do?
 
