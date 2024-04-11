@@ -24,6 +24,14 @@ namespace AvaStride
 
         public static bool UIAttached => _uiWindow != null;
 
+        /// <summary>
+        /// Initializes and attaches the Avalonia UI framework to the specified game. This method should be called before using any Avalonia related functionality in the game.
+        /// </summary>
+        /// <param name="game">The game instance to which Avalonia UI will be attached.</param>
+        /// <param name="appBuilder">The Avalonia application builder to configure and start the Avalonia application.</param>
+        /// <param name="waitForWindowInit">Indicates whether to wait for the Avalonia window to be initialized before continuing execution.</param>
+        /// <exception cref="InvalidOperationException">Thrown if Avalonia has already been initialized with a game.</exception>
+        /// <exception cref="PlatformNotSupportedException">Thrown if the current operating system is not supported.</exception>
         public static void StartAndAttachAvalonia(Game game, AppBuilder appBuilder, bool waitForWindowInit = true)
         {
             if (_gameHandle != IntPtr.Zero)
@@ -59,6 +67,14 @@ namespace AvaStride
             _game.GameSystems.Add(_gameCallbacks = new GameCallbackSystem(game.Services, true));
         }
 
+        /// <summary>
+        /// Initializes Avalonia with the specified window. This method sets up the necessary configurations and displays the window in full-screen mode.
+        /// </summary>
+        /// <param name="window">The Avalonia window to initialize and display.</param>
+        /// <param name="enableCaptureAtStart">Determines whether to enable input capture for the window at startup.</param>
+        /// <param name="applyTransparency">Indicates whether to apply transparency settings to the window.</param>
+        /// <exception cref="InvalidOperationException">Thrown if a window has already been initialized.</exception>
+        /// <exception cref="Exception">Thrown if there is an error in finding the top-level window or its handle.</exception>
         public static void InitializeWithWindow(Window window, bool enableCaptureAtStart, bool applyTransparency = true)
         {
             if (_uiWindow != null)
@@ -105,6 +121,7 @@ namespace AvaStride
         /// <summary>
         /// Sets whether the UI is to receive mouse and keyboard events. When the UI is enabled, the underlying game will NOT receive keyboard and mouse events.
         /// However, any explicit mouse input captures may still run. Its a good idea to stop any explicit captures in-game when enabling the UI.
+        /// Note: Any cursor style will also change to whatever is set in the UI.
         /// </summary>
         /// <param name="enable"></param>
         public static void EnableUICapture(bool enable)
@@ -138,9 +155,9 @@ namespace AvaStride
         }
 
         /// <summary>
-        /// Sets the priority of game callbacks as a script priority level.
+        /// Sets the priority of game callbacks. This method is useful for managing the order in which updates are processed within the game.
         /// </summary>
-        /// <param name="priority"></param>
+        /// <param name="priority">The priority level to set for the game callbacks.</param>
         public static void SetGameCallbacksPriority(int priority)
         {
             DispatchGameThread(_ => _gameCallbacks!.UpdateOrder = priority);
@@ -148,22 +165,39 @@ namespace AvaStride
 
         /// <summary>
         /// Dispatches an action on the game thread, to be called at next frame update.
+        /// If the executing code is already on the game thread, than the action is ran immediately.
         /// </summary>
         /// <param name="action"></param>
         public static void DispatchGameThread(Action<Game> action)
         {
             checkThrowGameInit();
+
+            // this does a simple reference check on current thread.
+            if (_gameCallbacks!.CheckAccess())
+            {
+                action(_game!);
+            }
+
             _gameCallbacks!.Dispatch(() => action(_game!));
         }
 
         /// <summary>
         /// Dispatches an action on the UI thread.
+        /// If the executing code is already on the UI thread, than the action is ran immediately.
         /// </summary>
         /// <param name="action"></param>
         /// <param name="priority"></param>
         public static void DispatchUIThread(Action<Window> action, DispatcherPriority priority = default)
         {
             checkThrowWindowInit();
+
+            // this does a simple reference check on current thread.
+            if (Dispatcher.UIThread.CheckAccess()) 
+            {
+                action(_uiWindow!);
+                return;
+            }
+
             Dispatcher.UIThread.Post(() => action(_uiWindow!), priority);
         }
 

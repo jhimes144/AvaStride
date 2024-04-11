@@ -12,6 +12,8 @@ namespace AvaStride
         readonly object _lock = new();
         readonly HashSet<Action> _actions = [];
 
+        Thread? _gameThread;
+
 		public GameCallbackSystem(IServiceRegistry registry, bool isEnabled) : base(registry)
 		{
             Enabled = isEnabled;
@@ -19,6 +21,8 @@ namespace AvaStride
 
 		public override void Update(GameTime time)
         {
+            _gameThread ??= Thread.CurrentThread;
+
             lock (_lock)
             {
                 foreach (var action in _actions)
@@ -28,6 +32,11 @@ namespace AvaStride
 
                 _actions.Clear();
             }
+        }
+
+        public bool CheckAccess()
+        {
+            return _gameThread == Thread.CurrentThread;
         }
 
         public void Dispatch(Action action)
